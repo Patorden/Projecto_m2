@@ -73,29 +73,65 @@ Hist_piso_tierra <- ggplot(Data.reg, aes(x = reorder(REG_IND, casasPisoTierra_x1
   theme_linedraw() + 
   theme(text=element_text(size=10, family="Courier", face = "bold"))
 
-par(mfrow=c(2,2))
 Hist_sin_Agua
 Hist_sin_Luz
 Hist_sin_Rezago
 Hist_piso_tierra
 
+# ahora comparemos todas las localidades sin región indígena y los Tarahumaras:
+# primero vamos a arreglar el grado de rezago social de muy bajo a muy alto: 
+
+Data.reg$Grado.de.rezago.social <- factor(Data.reg$Grado.de.rezago.social,
+                                          levels = c("Muy bajo", "Bajo", "Medio", "Alto", "Muy alto"))
+
+# creamos un df sólo con las localidades tarahumara y sin región indígena: 
 Data.reg.select <- filter(Data.reg, REG_IND == c("Tarahumara","Localidades no indigenas"))
 
-summary(Data.reg.select$REG_IND)
+# Checamos: 
+summary(Data.reg.select)
 
 attach(Data.reg.select)
 
-ggplot(Data.reg.select, aes(Hablantes_leng_indig)) + 
-  geom_(colour = 'green', 
-        fill = 'orange',
-        alpha = 0.7, # Intensidad del color fill
-        binwidth = 0.5) + 
-  geom_density(aes(y = 0.5*..count..))+ # te crea un smooth line con el mismo bandwith
-  geom_vline(xintercept = mean(Hablantes_leng_indig), linetype="dashed", color = "black") + 
-  ggtitle('Histograma para la muestra t de Student') + 
-  labs(x = 'Valores obtenidos', y = 'Frecuencia')+
-  theme_light() +
-  theme(plot.title = element_text(hjust = 0.5, size = 16)) 
+layout(1:2)
 
+hablanes.TaraYnoInd <- Data.reg.select %>%
+  ggplot() + 
+  aes(x = HablantesInd_x100, y = Grado.de.rezago.social) +
+  facet_grid(~REG_IND) +
+  geom_count(alpha=0.3, colour = "dark blue") + 
+  ggtitle("Distribución de hablantes indígenas") + 
+  theme_linedraw() +
+  ylab("Grado de rezago social") +
+  xlab("Porcentaje de hablantes\n de lenguas índígenas") +
+  scale_x_continuous(labels = scales::number) +
+  theme(text=element_text(size=10, family="Courier", face = "bold"))
 
+ocup_cuarto.TaraYnoInd <- Data.reg.select %>%
+  ggplot() + 
+  aes(x = Prom_ocup_por_cuarto, y = Grado.de.rezago.social) +
+  facet_grid(~REG_IND) +
+  geom_count(alpha=0.3, colour = "dark blue") + 
+  ggtitle("Distribución de ocupantes por cuarto") + 
+  theme_linedraw() +
+  ylab("Grado de rezago social") + 
+  xlab("Promedio de ocupantes por cuarto") + 
+  scale_x_continuous(labels = scales::number) +
+  theme(text=element_text(size=10, family="Courier", face = "bold"))
 
+alt.TaraYnoInd <- Data.reg.select %>%
+  ggplot() + 
+  aes(x = altitud, y = Grado.de.rezago.social) +
+  facet_grid(~REG_IND) +
+  geom_count(alpha=0.3, colour = "dark blue") + 
+  ggtitle("Distribución de localidades por altura") + 
+  theme_linedraw() +
+  ylab("Grado de rezago social") + 
+  xlab("Altitud media") + 
+  scale_x_continuous(labels = scales::number) +
+  theme(text=element_text(size=10, family="Courier", face = "bold"))
+
+# ahora vemos las variables: 
+
+hablanes.TaraYnoInd
+ocup_cuarto.TaraYnoInd
+alt.TaraYnoInd
